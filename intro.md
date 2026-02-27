@@ -119,3 +119,97 @@ buses have different requirements in terms of performance
 - we use different buses for different data speeds
   - highway vs local road
 - we use a bridge when we need communication between high performance peripherals and low performance peripherals
+
+## Hardware-software interface
+
+when we design an SoC we need to focus on the hardware and the software (drivers, operating system, compilers, ...)
+
+in this class we're going to focus on the software side
+
+- but here we're very close to the hardware
+- to write decent software, we need to really understand the hardware side
+
+##
+
+increasing clock speed and ILP, processors can increase performance
+
+however, these techniques have a huge cost in area
+
+- the cost is proportional to the area
+  - pago il mm^2 del chip
+
+**IMPORTANTE: what about energy?**
+
+- E = Power*Time
+- with a bigger processor
+  - time goes down because the processor is faster
+  - power goes up because the processor has more logic gates, memory cells, ..., transistor
+
+the power of anything implemented in CMOS logic is the sum of dynamic power and static power
+
+- dynamic power: $\alpha C V^2 f$
+  - in a large processor
+  - the voltage is the same
+  - the capacitance is proportional to the area
+    - roughly 1000x more area for a complex core
+  - the frequency is at most 10x larger
+    - 400MHz for a simple core, 4GHz for a complex core
+  - **we expect 10000x more dynamic power for a complex core**
+- static power: $Area V$
+  - 1000x more area
+
+**Let's compare the performance**
+
+$T_{ck} N_{ck}$
+
+- the frequency is 10x higher for a complex core
+- the number of instructions is the sames for both cores
+- the complex core uses ILP
+  - in media esegue 4 istruzioni alla volta e quindi dividiamo per 4 il numero di clock
+
+**the complex core is ~40x faster but is ~10000x more power hungry**
+
+**the complex core is way less power efficient than the simpler core**
+
+## TLP
+
+A better approach to achieve performance is using multiple simple cores, **assuming that my program can be parallelized**
+
+roughly speaking, the parallel processor needs 40 parallel cores to achieve the same performance of the complex core, needing only 40x more power
+
+- way more power efficient than the complex core
+
+**NB**: this is the idea of TLP, but it's important to note that this is never this easy
+
+- workloads are not perfectly parallelizable
+- a multicore chip is more complex than a sum of simple cores (private caches, coherence, etc...)
+
+Still the idea that TLP is way more energy effiecient than ILP holds
+
+## Specialization and heterogeneity
+
+instead of having only gp cores
+
+- still better than a single huge core
+
+in a SoC we have many different kinds of specialized processors (accelerators) that trade flexibility for performance
+
+- GPU, NPU, Mutlimedia accelerators
+- way more energy efficient wrt to a gp core
+
+In SoCs we combine GP cores with accelerators
+
+- to accelerate and execute more efficiently special workloads
+- to execute general workloads that can hardly be accelerated (OSs, ...)
+
+**conclusioni**: we achieve energy efficiency by going parallel and by specializing
+
+##
+
+MCUs are exactly the same but smaller
+
+- MCUs are simple SoCs
+
+typically, modern day embedded processors use an Harvard architecture
+
+- there are separate code and data memories/buses
