@@ -165,7 +165,7 @@ Usually the middle ground is achieved by going through some hops (giusto per ave
 
 - riduciamo i fili ma paghiamo con un pochino di latenza aggiuntiva
 
-## Outstanding transactions and pipelined buses
+### Outstanding transactions and pipelined buses
 
 you start a read/write (could be a different initiator) while the previous one has yet to finish
 
@@ -176,3 +176,9 @@ the APB bus doesn't do this
 we can even use out-of-order multiple outstanding transactions where a next responde could come before a previous slow response from a slow target
 
 - we avoid blocking faster responses because of slower targets
+
+clearly we need to consider the complexity of these techniques and not only the performance
+
+---
+
+routers route based on the address
