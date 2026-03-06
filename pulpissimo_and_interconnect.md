@@ -182,3 +182,13 @@ clearly we need to consider the complexity of these techniques and not only the 
 ---
 
 routers route based on the address
+
+...
+
+---
+
+burst transfers deal with requests that need a consecutive bunch of data
+
+- a burst is an advance type of transaction that is composed of many reads and writes
+
+with burst you can minimize the usage of the request channel
