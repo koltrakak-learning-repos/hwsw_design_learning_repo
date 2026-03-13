@@ -82,3 +82,55 @@ Oss:
   - then i restore my previous values
   - the i restore the values of the caller
 - in this case most of the time is spent handling spilling, and we may even consider swithcing architectures if our code is stressing too much the RF
+
+---
+
+##
+
+**do-while is more convenient in ES bacause we have only a single branch**
+
+- i don't need to check if i can enter the loop body
+
+---
+
+# Floating Point Assembly
+
+abbiamo un dedicated register file
+
+i ruoli dei fp registers sono gli stessi così come la loro calling convention
+
+- fa
+- fs
+- ft
+
+---
+
+# Performance metrics
+
+performance e speedup
+
+...
+
+from the c program we can't deduce the time it takes to execute the program
+
+so we compile, because from the assembly we can
+
+- we have the instructions
+- from them we get the total number of cycles
+  - a bit more tricky
+
+To get the number of cycles we need some architectural information
+
+...
+
+"it's enough to focus on what happens at the execution stage"
+
+Forward branches are predicted as not taken (i.e., go to the next instruction), backward branches are predicted as taken (i.e., jump to the address); mispredictions implies a stalls of 3 cycles
+
+...
+
+if i cannot compute the cycles (maybe because i don't have the assembly code) i can estimate the average CPI
+
+in our simple microcontrollers the optimistic CPI is 1
+
+- clearly we can't achieve this (complex multicycle instructions, latency of memory access, data and control hazards)

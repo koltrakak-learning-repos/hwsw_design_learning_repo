@@ -1,3 +1,6 @@
+# ignora le cartelle di build
+BUILD/
+
 # Prerequisites
 *.d
 
