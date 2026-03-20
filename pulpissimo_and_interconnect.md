@@ -64,6 +64,8 @@ we also have core-privileged memory banks
 
 # Interconnects
 
+Interconnects are important because all communication between the processor and mamory/peripherals happens through the interconnect
+
 Crossmatrix represents the connections:
 
 - the **columns are the initiators** of transactions
@@ -206,8 +208,6 @@ routers route based on the address
 
 ...
 
----
-
 ### Burst transfers
 
 burst transfers deal with requests that need a consecutive bunch of data
@@ -218,3 +218,117 @@ burst transfers deal with requests that need a consecutive bunch of data
 ```
 I'm guessin APB also doesn't do this
 ```
+
+ogni blocco di dati di risposta in un burst viene chiamato beat
+
+without burst transfers, we can only utilize half of the bandwidth available from a bus channel (if we don't pipeline)
+
+- because we have to wait for the other channel for every message
+- burst transfers allow us to have a much better utilization of the bandwidth of the response channel
+
+we can also apply pipelining with burst transfers
+
+- this allows us to use the freed bandwidth of the request channel by sending request while the response data is still coming (multiple burst-based outstanding transactions)
+- like a mail system, we don't have to wait for an answer before sending another email (asynchronous)
+
+## AXI
+
+5 channels
+
+- we have separated the request and response channels for reads and writes
+- sicuramente abbiamo bisogno di un canale per indirizzo e dati
+  - (ma il canale non racchiudeve proprio questi fili?)
+  - si ma adesso abbiamo un control flow più complicato dato che siamo in un network interconnect
+  - quando un initiator emette un indirizzo, la rete risponde dicendo se può gestire la richiesta o meno
+    - valid/ready protocol
+      - initiator raises valid
+      - network raises ready when it's ready
+- the writes need 3 channels because i need and acknowledgement
+  - now i can send many writes without waiting for an answer
+  - prima o poi il master deve sapere se i suoi messaggi sono arrivati
+
+```
+uhm, ... studiatelo meglio (decoupling, control flow per canale, id delle transazioni che hai iniziato)
+```
+
+i bit di id sono limitati e quindi le multiple outstanding transactions sono altrettanto limitate
+
+### Esempi AXI
+
+si parte sempre alzando valid dell'address, data always comes later
+
+# Other actors on the interconnect
+
+each core in a multicore system can be an initiator
+
+in an MCU we have only a single core, nevertheless we still have multiple actors
+
+DMA
+
+- **the core configures the DMA to transfer data between memory and peripherals/memory and memory without disturbing the core**
+- processor is good at computation, data transfers are a distraction
+
+```
+leggiti meglio double buffering (most common use of DMA)
+- esempio accelerator
+```
+
+the copies happen concurrently with computation
+
+- if the DMA is balanced the processor can keep computing all the time
+
+## Circular buffers
+
+we need to buffers
+
+- one for the DMA to copy data into
+- the other for the processor to do computation
+
+it's important that they are not overlapped, otherwise the dma would overwrite the data the processor is working on
+
+after a transfer is finished by the DMA, this is a synchronization point
+
+another sinchronization point happens when the dma is finished, there are no other free buffers, and the processor is still computing
+
+- the cpu will tell the dma to wait
+
+lastly, when the processor finishes computing we have another synchronization point where the cpu tells the DMA to start copying again
+
+double buffering is the least memory hungry technique, we could use even more buffers appoggiandoci ad un circular queue
+
+noi siamo felici quando la cpu non deve mai aspettare il dma, in altre parole quando la cpu continua a computare sempre e comunque
+
+quando il write pointer e il read pointer puntano a buffer diversi siamo a posto e nessuno deve aspettare
+
+usare più buffer e una circular queue ci da un po' più di gioco quando i tempi di trasferimento e computazione non sono costanti
+
+## DMAs are not autonomous
+
+we want to configure the DMA as less frequently as possible (we don't want the cpu to spend it's time programming the dma)
+
+this is why advanced dmas have more complex semantics that reduce the number of configuration needed
+
+advanced dmas can also handle multiple peripherals by using multiple streams
+
+- eg: stream 1 is the dma copying raw camera data to memory, the processor does some image processing, stream2 is the dma copying the processed image to a wireless peripheral so you can see the processed image in your phone
+
+this means that the DMA can have multiple initiator / target ports
+
+- initiator ports are used by the dma to do the copying
+- target ports are used by the processor to configure the dma
+
+dma data streams sono gestiti con un valid/ready handshake classico
+
+---
+
+fundamentally there are 3 ways to configure a dma
+
+- mmapped registers
+- dedicated ISA instructions
+- descriptor based interface: prepare a pile of work and put it in memory, the dma will read the descriptors and do its work until it finishes. When that happens the dma will ask for another pile of work
+
+most used ones are the 1st and the last
+
+skip slide 96
+
+esercizio lo facciamo dopo
