@@ -185,9 +185,11 @@ Crossbar (exmple of more advanced interconnect):
 
 We have to find a middle ground between a bus (full serialization) and a crossbar (no serialization but way too many wires)
 
+```
 Usually the middle ground is achieved by going through some hops (giusto per avere un'idea non c'è da impararlo bene)
 
 - riduciamo i fili ma paghiamo con un pochino di latenza aggiuntiva
+```
 
 ### Outstanding transactions and pipelined buses
 
@@ -224,38 +226,43 @@ ogni blocco di dati di risposta in un burst viene chiamato beat
 without burst transfers, we can only utilize half of the bandwidth available from a bus channel (if we don't pipeline)
 
 - because we have to wait for the other channel for every message
-- burst transfers allow us to have a much better utilization of the bandwidth of the response channel
+- **burst transfers allow us to have a much better utilization of the bandwidth of the response channel**
 
-we can also apply pipelining with burst transfers
+**NB**: we can also apply pipelining with burst transfers
 
 - this allows us to use the freed bandwidth of the request channel by sending request while the response data is still coming (multiple burst-based outstanding transactions)
 - like a mail system, we don't have to wait for an answer before sending another email (asynchronous)
 
 ## AXI
 
-5 channels
+multiple burst-based outstanding transactions (which can complete out-of-order)
+
+5 channels / phases
 
 - we have separated the request and response channels for reads and writes
 - sicuramente abbiamo bisogno di un canale per indirizzo e dati
-  - (ma il canale non racchiudeve proprio questi fili?)
-  - si ma adesso abbiamo un control flow più complicato dato che siamo in un network interconnect
+  - ma il canale non racchiudeve proprio questi fili? Si, ma adesso abbiamo un control flow più complicato dato che siamo in un network interconnect
   - quando un initiator emette un indirizzo, la rete risponde dicendo se può gestire la richiesta o meno
-    - valid/ready protocol
-      - initiator raises valid
-      - network raises ready when it's ready
-- the writes need 3 channels because i need and acknowledgement
+- in generale, **valid/ready protocol** per ogni canale
+  - initiator raises valid
+  - network raises ready when it's ready
+- the reads need 2 channels
+  - address read (request)
+  - data read/response read (response)
+- the writes need 3 channels: address write, data write, but i also need an acknowledgement
   - now i can send many writes without waiting for an answer
   - prima o poi il master deve sapere se i suoi messaggi sono arrivati
 
-```
-uhm, ... studiatelo meglio (decoupling, control flow per canale, id delle transazioni che hai iniziato)
-```
+Infine, Per-channel IDs (dei fili in più per canale) to differentiate multiple, ooo, outstanding transactions
 
-i bit di id sono limitati e quindi le multiple outstanding transactions sono altrettanto limitate
+- ad esempio id per data-read (da chi vengono questi dati?), id per response write (chi è che ha ricevuto i miei dati?)
+- i bit di id sono limitati e quindi le multiple outstanding transactions sono altrettanto limitate
 
 ### Esempi AXI
 
 si parte sempre alzando valid dell'address, data always comes later
+
+---
 
 # Other actors on the interconnect
 
@@ -265,34 +272,30 @@ in an MCU we have only a single core, nevertheless we still have multiple actors
 
 DMA
 
-- **the core configures the DMA to transfer data between memory and peripherals/memory and memory without disturbing the core**
+- **the core configures the DMA to transfer data between memory and peripherals, and/or memory and memory without disturbing the core**
 - processor is good at computation, data transfers are a distraction
-
-```
-leggiti meglio double buffering (most common use of DMA)
-- esempio accelerator
-```
 
 the copies happen concurrently with computation
 
 - if the DMA is balanced the processor can keep computing all the time
 
-## Circular buffers
+## Double buffering
 
-we need to buffers
+we need two buffers
 
 - one for the DMA to copy data into
 - the other for the processor to do computation
 
 it's important that they are not overlapped, otherwise the dma would overwrite the data the processor is working on
 
-after a transfer is finished by the DMA, this is a synchronization point
+we have many sync points:
 
-another sinchronization point happens when the dma is finished, there are no other free buffers, and the processor is still computing
+- after a transfer is finished by the DMA, this is a synchronization point
+- another sinchronization point happens when the dma is finished, there are no other free buffers, and the processor is still computing
+  - the cpu will tell the dma to wait
+- lastly, when the processor finishes computing we have another synchronization point where the cpu tells the DMA to start copying again
 
-- the cpu will tell the dma to wait
-
-lastly, when the processor finishes computing we have another synchronization point where the cpu tells the DMA to start copying again
+## Circular buffers
 
 double buffering is the least memory hungry technique, we could use even more buffers appoggiandoci ad un circular queue
 
@@ -310,7 +313,8 @@ this is why advanced dmas have more complex semantics that reduce the number of 
 
 advanced dmas can also handle multiple peripherals by using multiple streams
 
-- eg: stream 1 is the dma copying raw camera data to memory, the processor does some image processing, stream2 is the dma copying the processed image to a wireless peripheral so you can see the processed image in your phone
+- eg: stream 1 is the dma copying raw camera data to memory, the processor does some image processing,
+- stream2 is the dma copying the processed image to a wireless peripheral so you can see the processed image in your phone
 
 this means that the DMA can have multiple initiator / target ports
 
