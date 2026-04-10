@@ -16,7 +16,7 @@ OSS: the data-rate of the lines in an upper bound (it specifies the switching sp
 
 the protocol is conceptually similar to APB bus used in on-chip communication
 
-half duplex synchronous communication scheme
+**half duplex synchronous communication scheme**
 
 - synchronous means that the master generates a clock (SCL) that the data (SDA) is synchronized to
 - the data can only travel in one direction at a time
@@ -28,7 +28,8 @@ the boxes are communincation actors (initiators/targets)
 - if nobody wants to communicate on the line, this means that no one wants to change the voltage on the SDA/SCL wires, thus the pull-up resistors pull-up the voltage to VDD
 - **wired-end concept**:
   - if the transistors are off, nobody is writing, so the wires are pulled-up to vdd
-  - if the transistor is one, the transistor becomes equivalent to a resistance much smaller to the pull-up ones; la tensione sul filo diventa il risultato della caduta di potenziale
+  - if the transistor is on, it becomes equivalent to a resistance much smaller to the pull-up ones;
+    - la tensione sul filo diventa il risultato della caduta di potenziale
     - almost zero, because the resistance is much smaller (fai i calcoli)
     - **accedendere il transistor fa cadere la tensione sui fili, viceversa spegnerli alza la tensione** -> this is the communication
 - clearly, **only actor at a time can drive its transistor (one initiator at a time)**
@@ -38,13 +39,13 @@ the boxes are communincation actors (initiators/targets)
 
 asserting the start bit means turning on its transistor
 
-everytime the clock goes high, we're telling the target to look at the data
+**everytime the clock goes high, we're telling the target to look at the data**
 
 - this is why it's called a serial protocol, every bit of information is transmitted one at a time
 
 ...
 
-we have a periodic ack of the data to make sure that the data has been successfully tranfered
+we have a **periodic ack of the data** to make sure that the data has been successfully tranfered
 
 - pensa al target di una scrittura che è spento, senza ack il master penserebbe di aver trasferito correttamente i dati
 
