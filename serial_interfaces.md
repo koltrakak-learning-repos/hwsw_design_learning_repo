@@ -6,6 +6,12 @@ this is typically done at various levels of speed
 
 ## I2C (Inter-Integrated Circuit Bus)
 
+Used for communication with external peripherals, for example:
+
+- EEPROMs
+- thermal sensors
+- real-time clocks
+
 low power, low bandwidth communication and requires a minimal number of wires
 
 - very cheap but you can't communicate a lot of data
@@ -89,11 +95,30 @@ commonly used for transceivers (blueetooth, wireless stuff, usb)
 
 point-to-point bus
 
-asynchronous -> no clock!
+- Essentially a parallel2serial (TX), serial2parallel (RX) converter couple
 
-- we don't need to have a clock signal because the clock of the actors is much faster than the baud rate of the data transfer
-- we have many chances to sample the data in a single transfer-clock cycle
+asynchronous -> no shared clock!
+
+- we don't need to have a clock signal because the clock of the actors is much faster than the baud-rate (bit/s) of the data transfer
+  - we have many chances to sample the data in a single transfer-clock cycle
 - **this works because the communication is much slower than the clock of the devices, this is the assumption needed for asynchronous communication**
+
+Highly configurable
+
+- simplex, full-duplex or half-duplex
+- parity bit
+
+La comunicazione avviene più o meno come sempre
+
+- abbiamo uno start bit e degli stop bits
+- non sembra ci sia un address e quindi è un interfaccia 1 a 1
+
+The UART protocol can also include a handshake:
+
+- request-to-send (RTS) is active when the transmitter wishes to send data
+- clear-to-send (CTS) is active when the receiver can receive data
+- exchange happens when CTS and RTS are both asserted
+- can be connected in “crossed” configuration if both devices can act as transmitters in the communication
 
 ## Hyperbus
 
@@ -117,5 +142,5 @@ NB: studiare questi protocolli (anche quelli on chip), è importante per varie r
 
 - scrivere firmware richiede conoscere i protocolli di comunicazione per configurare correttamente la comunicazione
   - se non conosco cos'è il baud-rate, i comandi, etc. come faccio?
-- performance analysis: voglio stimare quanto il mio sistma riesce ad andare forte teoricamente
+- performance analysis: voglio stimare quanto il mio sistema riesce ad andare forte teoricamente
 - debug e riconoscimento dei colli di bottiglia: se il data transfer ci sta mettento troppo tempo, capiamo se è colpa del protocollo e vediamo con cosa sostituirlo o come risolvere
