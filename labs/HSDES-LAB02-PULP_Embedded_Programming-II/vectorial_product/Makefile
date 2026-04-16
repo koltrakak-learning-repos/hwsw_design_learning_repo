@@ -1,12 +1,12 @@
 APP = test
-APP_SRCS += test.c
+APP_SRCS += test_sol.c
 APP_CFLAGS += -O3 -g
 
 CONFIG_HYPERRAM = 1
 
-ifdef DB
+# ifdef DB
 APP_CFLAGS += -DDOUBLE_BUFFERING
-endif
+# endif
 
 
 include $(RULES_DIR)/pmsis_rules.mk
