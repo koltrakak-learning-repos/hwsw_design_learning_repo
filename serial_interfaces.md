@@ -2,6 +2,26 @@ interfaces between the mcu chip and the outside world (sensors/actuators, eg: a 
 
 this is typically done at various levels of speed
 
+**NB**:
+
+- the job of an interconnect protocol (APB, AXI) is to move data **inside the chip** between targets like: cores, memories, timers and peripheral controllers (i.e. serial interface controllers like UART controller, SPI controller, etc...)
+  - these protocols are parallel -> we have many wires to transfer data words and addresses (in addition to control info)
+  - different speeds -> AHB used between cores/DMA and memories; APB between cores/DMA and peripheral controllers (that are serial and slow)
+- the job of a serial interface is to be a bridge between the core/dma and external peripherals,
+  - the protocol of the serial interface deals with moving data **outside the chip**, between a peripheral controller and the peripheral in question (es: keyboard and UART controller)
+  - the core can program a peripheral controller to initiate a transfer, but the results are written/read using the mmapped register of the peripheral controller with the interconnect protocol
+
+```The "Chain of Command"
+To tie it all together, think of the path a piece of data takes when you want to send a character to a terminal:
+
+1. The Core generates the data.
+2. It sends that data over the AHB Bus (High speed, 32-bit parallel).
+3. An AHB-to-APB Bridge moves the data to the slower APB Bus.
+4. The data arrives at the UART Controller's registers.
+5. The UART Controller "serializes" that 32-bit data into a single-wire bitstream.
+6. The data leaves the chip through the UART Controller via a Physical Pin, and travels to the terminal which is the peripheral designed to display the data
+```
+
 # Serial Interfaces
 
 ## I2C (Inter-Integrated Circuit Bus)

@@ -131,3 +131,116 @@ un buon esercizio d'esame e capire se mi conviene andare nell'off state o meno
 possiamo avere un terzo stato in qui abbiamo applicato power gating a parte del chip (deep sleep state)
 
 - timers e clock continuano ad essere presenti come nel "shallow sleep state"
+
+## Events
+
+an event is something to react to only if you were explicitly waiting for it
+
+- interrupts arrive and are managed at any time ; events arrive at any time, are managed only when explicitly waited
+
+# practical example | STM32L1 MCU
+
+## Clock Distribution
+
+many clock sources
+
+- some run very fast, some run very slow
+- we also see that some clock sources have their speed configurable
+- however, clocks that are able to run very fast consume more power even if configured to be slow because of their circuitry
+- **this is why we need multiple clock sources, using a slow clock allows us to be low power**
+- we also have some external clock sources
+  - external clocks sources are needed because they produce very stable and precise frequencies (physical properties of materials needed like quarts oscillators)
+  - takeaway: if we need a precise clock, we use an external one, if not we use an internal one
+
+...
+
+the system clock doesn't go everywhere in the chip
+
+we have a lot of control logic (prescalers) that produce many different clocks from the system clock for different parts of the chip
+
+- we want to feed different parts of the chip with the lowest frequency clock that we can manage for power reasons
+
+...
+
+we use the super slow clocks (LSE, LSI) when we are in a sleep state just to be able to wake up
+
+- again this is for power reasons
+
+RTC (Real Time Clock)
+
+## Voltage domains
+
+vabe, abbiamo parlato solo di power gating come prima
+
+## Power Modes
+
+we're not given directly the power
+
+instead we're given A/Hz, because we have multiple operating frequencies and voltages
+
+- to get the power we multiply by the operating frequency and then by the voltage
+
+...
+
+LPRUN/LPSLEEP modes are states in which we're not doing work so we do stuff like clock gating and use timers (with slow clocks) to wakeup
+
+STOP/STANDBY modes are states in which we're applying power gating
+
+### RUN MODE
+
+everything is on and we use high speed clock
+
+to reduce power we can
+
+- clock gate peripherals if we're not using them
+- frequency scale down if we don't need to go fast (but still using the high-speed source)
+- reduce the voltage (if the power supply is configurable), thus lowering the maximum frequency, if we don't need to go fast
+  - a rough approximation of the redution you get is A/Hz * V_new^2 / V_old^2
+  - this is an approximation because we have leakage power that we're not considering, this approximation is optimistic (the real A/Hz would be a bit more)
+
+### LPRUN MODE
+
+some peripherals are clock gated
+
+reduce the voltage
+
+use the medium speed clock source
+
+- clearly we go slower by using less power
+
+### SLEEP
+
+core is clock gated (sleep mode), thus stops executing instructions and waits for an interrupt/event
+
+- ricorda che clock gating elimina la switching activity, e quindi dynamic power, ma non leakage power
+
+**peripherals are kept running**; here's why
+
+1. Autonomous Data Collection (DMA)
+    - Peripherals can move data without the CPU. For example, a DMA controller can move data from an ADC (Analog-to-Digital Converter) directly into RAM while the core sleeps.
+    - Why? If you need to sample a sensor 1,000 times a second, waking the CPU for every single sample is a massive waste of power.
+    - You let the peripherals send interrupts to the DMA that copies the data to memory and only wake the CPU once the buffer is full.
+
+2. Communication Buffering
+    - If your device is connected to a computer via UART or SPI, data might arrive at any time. If the peripheral was off, you would miss the incoming data bits.
+    - By keeping the peripheral active, it can receive the byte, store it in a register, and then send an interrupt to "wake up" the core to process the message.
+
+3. Monitoring for "Events" (Not just Timers)
+    - It isn't always about a timer waking the core. Sometimes the peripherals are monitoring the physical world and wake up the core themselves with interrupts
+
+### STANDBY
+
+power gating everything except wakeup sources
+
+the time to wakeup is significant
+
+### Conclusioni
+
+These power modes allow us
+
+- to trade-off performance for power if we're doing domething
+- to trade-off time-to-wakeup for power if we're  not doing anything
+
+**NB**: the more deep is the sleep state you go in the more the number of actors that can wake you up is reduced
+
+- es: in light-sleep peripherals can wake you up; whereas in deep sleep only the timer can wake you up
