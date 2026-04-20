@@ -7,13 +7,13 @@ peak power and average power
 - will my chip burn?
 - how much my battery will last?
 
-we focus mostly in average power since we're working with mcus
+we focus mostly in average power since we're working with mcus (not enough power to burn the chip)
 
 ...
 
 batteries are energy stores
 
-- unfortunately, l'unità di misura non è i joule ma Amper per hour
+- unfortunately, l'unità di misura non è in joule ma Ampere per hour
 
 ## Where do we spend power in an MCU?
 
@@ -30,15 +30,15 @@ dynamic power
 
 leakage power
 
-- abbiamo leakage power sempre e comunque (l'unico modo per non avere leakage power è staccare il circuito dall'alimentazione)
+- **abbiamo leakage power sempre e comunque**
+- l'unico modo per non avere leakage power è staccare il circuito dall'alimentazione
 
 slide 5
 
-la frequenza con cui possiamo operare dipende dalla tensione (linea rossa vs blu)
-
+- la frequenza con cui possiamo operare dipende dalla tensione
 - non possiamo abbassare la tensione senza una caduta esponenziale della frequenza
 
-## Reducing Dynamic Power in a MCU
+### Reducing Dynamic Power in a MCU
 
 1) Drop operating Voltage and Frequency -> more than quadratic effect
 2) Reduce switching activity -> turn off unused modules
@@ -46,16 +46,14 @@ la frequenza con cui possiamo operare dipende dalla tensione (linea rossa vs blu
 
 1 and 2 are “knobs” exposed to the embedded software developer!
 
----
-
-looking at the graph for dynamic power we notice that
+Looking at the graph for dynamic power we notice that
 
 - reducing voltage has a quadratic effect on power (lo sapevamo già)
 - has an exponential effect on frequency (and thus on performance)
 
 this means that we can reduce voltage only when the exponential of the frequency doesn't kill us
 
-looking at the graph for static power we notice something different
+Looking at the graph for static power we notice something different
 
 when you lower voltage it's good, but the leakage power will dominate the dynamic power
 
@@ -69,11 +67,11 @@ the takeaway is that:
 - **there is a threshold voltage that gives us maximum efficiency**
   - however, maybe we can't achieve this maximum efficiency point because we need higher frequency
 
-## achieving low power in an mcu
+# Achieving low power in an mcu
 
 let's look at three techniques
 
-**Clock gating**
+**Clock gating**:
 
 let's take as an example an MCU with an adder and a multiplier unit
 
@@ -81,15 +79,25 @@ when we're doing an add, we don't need the multiplier, and we don't want it to c
 
 we can gate the clock of the multiplier (o meglio il clock dei flip-flop che mantengono gli operandi del multiplier) when doing an add so it doesn't do a useless multiply that wastes energy
 
-**Frequency scaling**
+**Frequency scaling**:
 
-**Multiple-clock domains**
+reduce the frequency of the parts of the system that don't need high speed at a particular time
 
-## Power Gating
+**Multiple-clock domains**:
+
+faster clocks consume more power, thus, it's a good a idea to use slower clocks wherever possible
+
+**Voltage scaling**:
+
+coupled with frequency scaling -> reducing the frequency means that we can reduce the voltage (obtaing the benefit of the square scaling)
+
+- this also reduces leakage power
+
+**Power gating**:
 
 con clock gating abbiamo comunque la presenza di leakage power (il circuito è comunque alimentato anche se non riceve un clock)
 
-possiamo fare **power gating**: spegnere sezioni del chip
+possiamo fare power gating: spegnere sezioni del chip
 
 **NON sempre applicabile**
 
@@ -134,9 +142,13 @@ possiamo avere un terzo stato in qui abbiamo applicato power gating a parte del 
 
 ## Events
 
+events are like interrupts but managed completely in software (non c'è dell'hardware che blocca il mio control flow e mi fa saltare verso un interrupt vector)
+
 an event is something to react to only if you were explicitly waiting for it
 
 - interrupts arrive and are managed at any time ; events arrive at any time, are managed only when explicitly waited
+
+---
 
 # practical example | STM32L1 MCU
 

@@ -311,19 +311,24 @@ we want to configure the DMA as less frequently as possible (we don't want the c
 
 this is why advanced dmas have more complex semantics that reduce the number of configuration needed
 
-advanced dmas can also handle multiple peripherals by using multiple streams
+**Advanced DMAs can also handle multiple peripherals by using multiple streams**
 
-- eg: stream 1 is the dma copying raw camera data to memory, the processor does some image processing,
-- stream2 is the dma copying the processed image to a wireless peripheral so you can see the processed image in your phone
+- Independence: Streams can work simultaneously.
+  - While Stream 0 is moving data from the SPI to RAM, Stream 4 could be moving data from RAM to the UART.
+- The Arbiter: Since all streams share the same physical bus (es AXB), the Arbiter decides which stream gets to use the bus if two streams want to move data at the exact same microsecond.
+- es:
+  - stream 1 is the dma copying raw camera data to memory
+  - the processor does some image processing
+  - stream2 is the dma copying the processed image to a wireless peripheral so you can see the processed image in your phone
 
-this means that the DMA can have multiple initiator / target ports
+This means that the DMA can have multiple initiator / target ports
 
 - initiator ports are used by the dma to do the copying
 - target ports are used by the processor to configure the dma
 
 dma data streams sono gestiti con un valid/ready handshake classico
 
----
+...
 
 fundamentally there are 3 ways to configure a dma
 
