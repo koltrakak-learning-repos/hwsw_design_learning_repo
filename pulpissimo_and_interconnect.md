@@ -100,16 +100,23 @@ In practice there are many initiators and many targets: to ensure that the commu
     - read data
     - tipically they are parallel wires (eg. 32)
   - control wires
-    - Read Enable, Write Enable, ...
+    - Read Enable, Write Enable
+    - valid, ready
     - single wires
-  - **NB: on the chip we don't have bidirectional wires!** the wires only go from the initiator to the target or viceversa
-  - We also group control and data wires into **request channels** (from initiator to target) and **response channels** (from target to initiator)
-    - at minimum we have 2 channels (one for requests and one for responses)
-    - but we may have more (for example for different kinds of traffic: fast, slow)
 
-- the control wires perform a **handshake**: a rule to distinguish valid transactions (syncs the initiator and the target)
+The control wires perform a **handshake**: a rule to distinguish valid transactions (syncs the initiator and the target)
 
-**How do we measure the performance of our interconnect?**
+- Interconnect operation is divided in phases of activity (es: request and response phases of a read/write transaction)
+  - states of a Finite State Machine governing the interconnect traffic
+
+**NB: on the chip we don't have bidirectional wires!** the wires only go from the initiator to the target or viceversa
+
+**NB**: We also group control and data wires into **request channels** (from initiator to target) and **response channels** (from target to initiator)
+
+- at minimum we have 2 channels (one for requests and one for responses)
+- but we may have more (for example for different kinds of traffic: fast, slow)
+
+## How do we measure the performance of our interconnect?
 
 - the two main metrics are latency and bandwidth
 - there is a tradeoff between the two: **things that increase the bandwidth also tend to increase the latency**
