@@ -32,7 +32,7 @@ how do i know if my initial implementation is good or bad? I need a methodology
 
 # Algorithm precision
 
-floating point ...
+**Floating point ...**
 
 it's expensive to support
 
@@ -41,9 +41,11 @@ it's expensive to support
 
 **Fixed point**
 
+this representation implicitly defines the number of fractionary bits q, hence a fixed point number is represented as $r = i * 2^{-q}$
+
 in dsp processing we don't need to change dynamically the range of numbers to represent
 
-hence fixed point is appropriate in this domain and we can leverage its cheapness
+- hence fixed point is appropriate in this domain and we can leverage its cheapness
 
 ## reducing the numerical precision of our data
 
@@ -52,7 +54,21 @@ good idea because it:
 - reduces the memory footprint of the program
 - reduces the energy consumption of the program
 
-need to evaluate with a metric how much our quantization is affecting the precision of the results of our algorithm (QSNR)
+NB: need to evaluate with a metric how much our quantization is affecting the precision of the results of our algorithm (QSNR)
+
+**Recipe for effectively reducing bit precision (picking the right number of bits)**:
+
+1. Define the **quantization range** (intervallo dei valori $[min, max]$ da rappresentare) of all the variables of the f^ function
+    - for static coefficients (like filter weights) its easy (the range is known)
+    - for dynamic variables (input signal) it's not
+        - you may consider running simulations to get some statistical info like: max, min, mean and variance
+    - Quantization range may be smaller than the value range of the coefficients
+        - your coefficients might technically span from $-1.0$ to $1.0$, but maybe $99\%$ of them are between $-0.1$ and $0.1$
+        - you might choose a smaller Quantization Range to get more "resolution" (granularity) for those common small numbers, and just apply something like saturation for the outliars
+
+2. Define the fixed-point word-length and fractionary bits that fits the quantization range
+
+3. Check the evaluation metric(s). Relaxing the above constraints 2) and 3) if the requirements on the evaluation metric are not matched
 
 # Roofline model
 
