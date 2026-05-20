@@ -1,0 +1,51 @@
+# NUM_CORES=1
+
+[0] total cycles = 24084
+[0] instructions = 2062
+[0] active cycles = 24082
+[0] external loads (L2+synch) = 0
+[0] TCDM cont = 0
+[0] LD stalls = 512
+[0] I$ misses = 0
+
+# NUM_CORES=2 - distribuzione non coalescente
+
+[1] total cycles = 12071
+[0] total cycles = 12071
+[1] instructions = 1048
+[0] instructions = 1048
+[1] active cycles = 12066
+[0] active cycles = 12066
+[1] external loads (L2+synch) = 0
+[0] external loads (L2+synch) = 0
+[1] TCDM cont = 0
+[0] TCDM cont = 0
+[1] LD stalls = 256
+[0] LD stalls = 256
+[0] I$ misses = 0
+[1] I$ misses = 0
+
+# NUM_CORES=2 - distribuzione coalescente
+
+[1] total cycles = 12078
+[0] total cycles = 12078
+[0] instructions = 1053
+[1] instructions = 1053
+[1] active cycles = 12073
+[0] active cycles = 12073
+[1] external loads (L2+synch) = 0
+[0] external loads (L2+synch) = 0
+[0] TCDM cont = 0
+[1] TCDM cont = 0
+[1] LD stalls = 257
+[0] LD stalls = 257
+[0] I$ misses = 0
+[1] I$ misses = 0
+
+`nota come non abbiamo migliorato -> non abbiamo una cache o transazioni che alimentano un'unità vettoriale`
+
+# NUM_CORES=8 - distribuzione coalescente
+
+[0] total cycles = 3059
+[2] total cycles = 3059
+...
