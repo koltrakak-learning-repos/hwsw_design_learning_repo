@@ -45,3 +45,71 @@ importante considerare gli overhead delle parallel regions (fork instructions, j
 `negli esercizi viene spesso chiesto se lo speedup che si guadagna con la parallelizzazione è maggiore dello slowdown causato dalla creazione dei thread e dalla barriera`
 
 ## work-sharing-constructs
+
+usanti all'interno di una parallel region...
+
+...
+
+**NB**: puoi unire la parallel region e una for region in un unica pragma
+
+```
+last private
+
+...
+
+the value of the last thread private variable is copied to the private variable of the first thread
+
+dopo la parallel region esegue il thread 0, e quindi, senza last_private(i), il valore di i sarebbe l'UB di quello del thread 0
+```
+
+### overhead of static scheduling
+
+ricordiamoci sempre che quando parallelizziamo dobbiamo sempre fare attenzione all'overhead che introduciamo.
+
+Nel caso dello static scheduling dei loop, we need to compute the bounds for each chunking iteration (solo 1 nel caso di static scheduling?)
+
+## dynamic scheduling
+
+static scheduling funziona bene solo quando ogni iterazione impiega lo stesso tempo
+
+questo non è sempre vero
+
+- pensa ad algoritmi la cui durata è data-dependent (es: se leggo un valore grande da un sensore ci metto tanto, altrimenti no)
+
+...
+
+le iterazioni vengono suddivise in singoli task che vengono eseguiti dai thread appena sono liberi
+
+nella pratica abbiamo bisogno di una coda ordinata di task da cui i thread che hanno finito il lavoro poppano il prossimo task/iterazione.
+
+siccome i thread accedono concorrentemente alla coda, bisogno garantire mutua esclusione tramite locking (overhead)
+
+the overhead of dynamic scheduling is always higher than that of static scheduling (locking)
+
+**NB**: notiamo che usare chunk da una singola iterazione introduce più overhead
+
+- dobbiamo trovare un buon compromesso tra overhead e bilanciamento del workload
+- difficile scegliere la chunk size giusta -> o fai analisi statistiche sul dataset/profilazione, oppure fai trial and error
+- rischio di peggiorare
+
+# synchronization
+
+## barrier
+
+## critical
+
+vale per la prossima istruzione o blocco
+
+...
+
+il numero di istruzioni nella sezione critica deve essere minimo rispetto al numero totale di istruzioni che stiamo eseguendo in parallello. Altrimenti invece di parallelizzare, i thread aspettano di continuo, ottenendo nella pratia una sequenzializzazione di fatto
+
+### reduction
+
+più efficiente di usare critical dato che adotta schemi di riduzione in cui si sequenzializza solo alla fine quando si fa la somma delle somme parziali
+
+dobbiamo specificare anche l'operazione
+
+- serve al compilatore per capire
+  - come ridurre
+  - come inizializzare le variabili per le riduzioni parziali
