@@ -129,7 +129,7 @@ in this class we're going to focus on the software side
 - but here we're very close to the hardware
 - to write decent software, we need to really understand the hardware side
 
-##
+## consequences of end of Dennard scaling
 
 increasing clock speed and ILP, processors can increase performance
 

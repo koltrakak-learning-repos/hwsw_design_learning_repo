@@ -5,7 +5,8 @@ NB:
 - with the parallel pragma we're just declaring an amount of parallelism to the compiler
 - the actual number that are going to be executing in parallel depends on the hardware capability of the hardware
 - OMP astrae il parallelismo della macchina e permette di scrivere parallel programs
-  - se poi la macchina supporta un grado di parallelismo minore rispetto a quello dichiarato, il runtime sequenzializzerà i thread
+  - se poi la macchina supporta un grado di parallelismo minore rispetto a quello dichiarato, il runtime sequenzializzerà i thread (performance pessime dato che si spreca tempo a fare context switch)
+  - nel caso di pulp crea il numero di thread massimo suportato dall'hardware
 
 ...
 
