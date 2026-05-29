@@ -63,10 +63,9 @@ static void filter_parallel(void *arg)
      *                int rem   = a->data_len % num_cores;
      *              Use base and rem to derive start and end for this core_id. */
 
-    int chunk_size = a->data_len / num_cores;
-    int rem   = a->data_len % num_cores;
+    int chunk_size = (a->data_len + num_cores-1) / num_cores;
     int start = core_id*chunk_size;
-    int end   = start + chunk_size;
+    int end   = start + chunk_size > a->data_len ? a->data_len : start + chunk_size;
 
     /* TODO [2.3c]: Implement the outer loop over [start, end).
      *              The loop body is given — only the bounds need to be filled
