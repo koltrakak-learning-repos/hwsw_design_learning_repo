@@ -1,0 +1,5 @@
+{
+	"name": "fconti/hsdes-container",
+	"image": "docker.io/fconti/hsdes-container",
+	"remoteUser": "root"
+}
