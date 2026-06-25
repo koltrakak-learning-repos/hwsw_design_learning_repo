@@ -47,7 +47,11 @@ importante considerare gli overhead delle parallel regions (fork instructions, j
 
 ## work-sharing-constructs
 
-usanti all'interno di una parallel region...
+- for
+- master, single
+- sections
+
+usanti all'interno di una parallel region
 
 ...
 
@@ -97,6 +101,8 @@ the overhead of dynamic scheduling is always higher than that of static scheduli
 
 ## barrier
 
+\#pragma omp barrier
+
 ## critical
 
 vale per la prossima istruzione o blocco
@@ -114,3 +120,24 @@ dobbiamo specificare anche l'operazione
 - serve al compilatore per capire
   - come ridurre
   - come inizializzare le variabili per le riduzioni parziali
+
+## master and single
+
+The master directive denotes a structured block that is only executed by the master thread. single does the same thing but it doesn't necessarily need to be the master thread
+
+a differenze degli altri work-sharing constructs, per master non c'è una barrier implicita alla fine del blocco
+
+- bisogna inserire una \#pragma omp barrier esplicitamente
+
+**single invece la inserisce esplicitamente**
+
+# Tasking model
+
+The for pragma allows to exploit data parallelism in loops
+
+Conditions on the core id can be used to express task parallelism
+
+OpenMP provides a dedicated work-sharing construct without asking for a specific core:
+
+- \#pragma omp sections
+- \#pragma omp section (singolare)
